@@ -12,6 +12,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     racc (1.5.2)
+    writeexcel (1.0.5)
 
 PLATFORMS
   ruby
@@ -20,6 +21,7 @@ DEPENDENCIES
   nokogiri
   open-uri
   pry (= 0.13.1)
+  writeexcel
 
 BUNDLED WITH
    2.1.4
