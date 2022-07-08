@@ -1,3 +1,4 @@
+# Ruby version 2.7.3
 require 'open-uri'
 require 'nokogiri'
 require 'writeexcel'
@@ -12,7 +13,7 @@ class Crowdworks
     title = []
     url = []
     data = {}
-    while i <= page 
+    while i <= page
       root_path = "https://crowdworks.jp/public/jobs/search?hide_expired=#{filter}&keep_search_criteria=true&order=score&page=#{i}&search%5Bkeywords%5D=#{keyword}"
       document = open(root_path)
       content = document.read
@@ -26,8 +27,7 @@ class Crowdworks
       i += 1
     end
     data = { user: user.flatten, title: title.flatten, url: url.flatten }
-    save_data_job(data, keyword)
-    
+    save_data_jobs(data, keyword, filter)
   end
 
   def last_page(keyword, filter, number)
@@ -42,6 +42,8 @@ class Crowdworks
     else
       parsed_content.xpath("//div[@class='pagination_body']").children.to_a.last.children.text.to_i
     end
+  rescue
+    0
   end
 
   def next_page?(parsed_content)
@@ -72,9 +74,9 @@ class Crowdworks
     user
   end
 
-  def save_data_jobs(data, keyword)
+  def save_data_jobs(data, keyword, filter)
     column = 0
-    workbook  = WriteExcel.new("#{Time.now.strftime("%d-%m-%Y")}-#{keyword}.xls")
+    workbook  = WriteExcel.new("#{Time.now.strftime("%d-%m-%Y-%H-%M-%S")}-#{keyword}-#{filter == 'true' ? 'unexpired' : 'all'}.xls")
     worksheet = workbook.add_worksheet
     data.map do |key, values|
       values.each_with_index do |dt, index|
@@ -88,8 +90,10 @@ class Crowdworks
     end
     workbook.close
   end
-
 end
+
 # filter: all = false // unexpired = true
 # keyword: rails
 scrapping = Crowdworks.new.scrapping('rails', 'true')
+
+# Run: ruby crowdworks.rb
